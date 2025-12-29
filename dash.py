@@ -204,19 +204,34 @@ st.markdown("""
 # DATABASE CONNECTION CONFIGURATION
 # -------------------------------------------------------------------
 import os
-#hello
-# Try to get credentials from environment variables (Railway/Streamlit)
-# If not found, use local development credentials
-DB_CONFIG = {
-    'host': os.getenv('DB_HOST', 'localhost'),
-    'port': int(os.getenv('DB_PORT', '3307')),
-    'user': os.getenv('DB_USER', 'root'),
-    'password': os.getenv('DB_PASS', 'anshitdassdA2'),
-    'database': os.getenv('DB_NAME', 'tida')
-}
-# Display connection info (for debugging)
-if os.getenv('DB_HOST'):
-    st.sidebar.success(f"🔗 Connected to: {DB_CONFIG['host']}")
+
+# Try Streamlit secrets first, then environment variables, then local defaults
+try:
+    # Check if running on Streamlit Cloud with secrets
+    if "database" in st.secrets:
+        DB_CONFIG = {
+            'host': st.secrets["database"]["DB_HOST"],
+            'port': int(st.secrets["database"]["DB_PORT"]),
+            'user': st.secrets["database"]["DB_USER"],
+            'password': st.secrets["database"]["DB_PASS"],
+            'database': st.secrets["database"]["DB_NAME"]
+        }
+        st.sidebar.success(f"🔗 Connected to: {DB_CONFIG['host']}")
+    else:
+        raise KeyError("No secrets found")
+except (KeyError, FileNotFoundError, AttributeError):
+    # Fallback to environment variables or local config
+    DB_CONFIG = {
+        'host': os.getenv('DB_HOST', 'localhost'),
+        'port': int(os.getenv('DB_PORT', '3307')),
+        'user': os.getenv('DB_USER', 'root'),
+        'password': os.getenv('DB_PASS', 'anshitdassdA2'),
+        'database': os.getenv('DB_NAME', 'tida')
+    }
+    if os.getenv('DB_HOST'):
+        st.sidebar.info(f"🔗 Using env vars: {DB_CONFIG['host']}")
+    else:
+        st.sidebar.warning("🔗 Using localhost (local development)")
 
 @st.cache_data(ttl=300)
 def load_and_clean_data():
