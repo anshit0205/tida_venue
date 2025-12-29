@@ -12,6 +12,17 @@ from plotly.subplots import make_subplots
 import pymysql
 from datetime import datetime, timedelta
 import re
+import plotly.io as pio
+
+pio.templates["tida_dark"] = pio.templates["plotly_dark"]
+pio.templates["tida_dark"].layout.update(
+    paper_bgcolor="rgba(26,26,46,1)",
+    plot_bgcolor="rgba(0,0,0,0)",
+    font=dict(color="#ffffff", family="Inter"),
+    colorway=["#00ffc2", "#ffd700", "#3a7bd5", "#ff6b6b", "#4ecdc4"]
+)
+
+pio.templates.default = "tida_dark"
 
 # -------------------------------------------------------------------
 # PAGE CONFIG
@@ -407,18 +418,16 @@ def create_kpi_cards(col, label, value, delta=None, delta_label="vs prev period"
 # VISUALIZATION FUNCTIONS
 # -------------------------------------------------------------------
 def create_revenue_trend(df):
-    """Create revenue trend over time"""
     daily_revenue = df.groupby('booking_date').agg({
         'actual_revenue': 'sum',
         'order_id': 'count'
     }).reset_index()
+
     daily_revenue.columns = ['Date', 'Revenue', 'Bookings']
-    
-    # Sort by date to ensure correct chronological order
     daily_revenue = daily_revenue.sort_values('Date')
-    
+
     fig = make_subplots(specs=[[{"secondary_y": True}]])
-    
+
     fig.add_trace(
         go.Scatter(
             x=daily_revenue['Date'],
@@ -426,68 +435,59 @@ def create_revenue_trend(df):
             name="Revenue (₹)",
             fill='tozeroy',
             line=dict(color='#00ffc2', width=3),
-            fillcolor='rgba(0, 255, 194, 0.2)',
-            hovertemplate='<b>%{x}</b><br>Revenue: ₹%{y:,.0f}<extra></extra>'
+            fillcolor='rgba(0,255,194,0.25)'
         ),
         secondary_y=False
     )
-    
+
     fig.add_trace(
         go.Scatter(
             x=daily_revenue['Date'],
             y=daily_revenue['Bookings'],
             name="Bookings",
-            line=dict(color='#ffd700', width=2.5),
-            marker=dict(size=6, color='#ffd700'),
-            hovertemplate='<b>%{x}</b><br>Bookings: %{y}<extra></extra>'
+            mode='lines+markers',
+            line=dict(color='#ffd700', width=2),
+            marker=dict(size=6, color='#ffd700')
         ),
         secondary_y=True
     )
-    
+
     fig.update_layout(
-        title="📈 Revenue & Booking Trends Over Time",
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(26, 26, 46, 0.5)',
-        font=dict(color='#ffffff', family='Inter', size=12),
-        hovermode='x unified',
+        title=dict(
+            text="📈 Revenue & Booking Trends Over Time",
+            font=dict(size=20, color="#00ffc2"),
+            x=0.5
+        ),
+        hovermode="x unified",
+        height=450,
+        margin=dict(l=80, r=80, t=80, b=80),
         legend=dict(
             orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="right",
+            y=1.05,
             x=1,
-            bgcolor='rgba(0,0,0,0.3)',
-            font=dict(color='#ffffff', size=12)
-        ),
-        height=450,
-        xaxis=dict(
-            showgrid=True,
-            gridwidth=1,
-            gridcolor='rgba(255,255,255,0.1)',
-            title='Date',
-            titlefont=dict(color='#00ffc2', size=14)
-        ),
-        margin=dict(l=80, r=80, t=80, b=80)
+            xanchor="right"
+        )
     )
-    
-    # Update y-axes separately
-    fig.update_yaxes(
-        title_text='Revenue (₹)',
-        titlefont=dict(color='#00ffc2', size=14),
+
+    fig.update_xaxes(
+        title=dict(text="Date", font=dict(color="#00ffc2", size=14)),
         showgrid=True,
-        gridwidth=1,
-        gridcolor='rgba(255,255,255,0.1)',
+        gridcolor="rgba(255,255,255,0.1)"
+    )
+
+    fig.update_yaxes(
+        title=dict(text="Revenue (₹)", font=dict(color="#00ffc2", size=14)),
         secondary_y=False
     )
-    
+
     fig.update_yaxes(
-        title_text='Bookings',
-        titlefont=dict(color='#ffd700', size=14),
-        showgrid=False,
-        secondary_y=True
+        title=dict(text="Bookings", font=dict(color="#ffd700", size=14)),
+        secondary_y=True,
+        showgrid=False
     )
-    
+
     return fig
+
 
 def create_venue_performance(df):
     """Create top 10 venue performance by revenue"""
@@ -758,14 +758,17 @@ def create_monthly_comparison(df):
     
     # Update y-axes separately
     fig.update_yaxes(
-        title_text='Revenue (₹)',
-        titlefont=dict(color='#00ffc2', size=14),
+        title=dict(
+            text='Revenue (₹)',
+            font=dict(color='#00ffc2', size=14)
+        ),
         side='left',
         showgrid=True,
         gridwidth=1,
         gridcolor='rgba(255,255,255,0.1)',
         secondary_y=False
     )
+
     
     # This was causing the error - fixed now
     fig.update_layout(
