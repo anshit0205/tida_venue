@@ -23,6 +23,8 @@ pio.templates["tida_dark"].layout.update(
 )
 
 pio.templates.default = "tida_dark"
+import plotly.io as pio
+pio.templates.default = "plotly_dark"
 
 # -------------------------------------------------------------------
 # PAGE CONFIG
@@ -489,60 +491,34 @@ def create_revenue_trend(df):
     return fig
 
 
-def create_venue_performance(df):
-    """Create top 10 venue performance by revenue"""
-    venue_stats = df.groupby('venue_name').agg({
-        'actual_revenue': 'sum',
-        'order_id': 'count',
-        'slot_duration_hours': 'sum'
-    }).reset_index()
-    venue_stats.columns = ['Venue', 'Revenue', 'Bookings', 'Total Hours']
-    
-    # Get top 10 by revenue
-    top_10_revenue = venue_stats.nlargest(10, 'Revenue').sort_values('Revenue', ascending=True)
-    
-    fig = go.Figure()
-    
-    fig.add_trace(go.Bar(
-        y=top_10_revenue['Venue'],
-        x=top_10_revenue['Revenue'],
-        orientation='h',
-        marker=dict(
-            color=top_10_revenue['Revenue'],
-            colorscale=[[0, '#3a7bd5'], [0.5, '#00ffc2'], [1, '#ffd700']],
-            showscale=False,
-            line=dict(color='rgba(0, 255, 194, 0.5)', width=2)
-        ),
-        text=[f"₹{x:,.0f}" for x in top_10_revenue['Revenue']],
-        textposition='outside',
-        textfont=dict(color='#ffffff', size=12, family='Inter'),
-        hovertemplate='<b>%{y}</b><br>Revenue: ₹%{x:,.0f}<br>Bookings: %{customdata}<extra></extra>',
-        customdata=top_10_revenue['Bookings']
-    ))
-    
-    fig.update_layout(
-        title={
-            'text': "🏆 Top 10 Venues by Revenue",
-            'font': {'size': 20, 'color': '#ffffff', 'family': 'Poppins'}
-        },
-        plot_bgcolor='rgba(0,0,0,0)',
-        paper_bgcolor='rgba(26, 26, 46, 0.5)',
-        font=dict(color='#ffffff', family='Inter'),
-        xaxis_title="Revenue (₹)",
-        xaxis=dict(
-            showgrid=True,
-            gridwidth=1,
-            gridcolor='rgba(255,255,255,0.1)',
-            titlefont=dict(color='#00ffc2')
-        ),
-        yaxis_title="",
-        yaxis=dict(titlefont=dict(color='#00ffc2')),
-        height=500,
-        showlegend=False,
-        margin=dict(l=200, r=100, t=80, b=50)
-    )
-    
-    return fig
+fig.update_layout(
+    title=dict(
+        text="🏆 Top 10 Venues by Revenue",
+        font=dict(size=20, color="#ffffff", family="Poppins"),
+        x=0.5
+    ),
+    plot_bgcolor="rgba(0,0,0,0)",
+    paper_bgcolor="rgba(26,26,46,1)",
+    font=dict(color="#ffffff", family="Inter"),
+    height=500,
+    showlegend=False,
+    margin=dict(l=200, r=100, t=80, b=50)
+)
+
+fig.update_xaxes(
+    title=dict(
+        text="Revenue (₹)",
+        font=dict(color="#00ffc2", size=14)
+    ),
+    showgrid=True,
+    gridcolor="rgba(255,255,255,0.1)"
+)
+
+fig.update_yaxes(
+    title=dict(text=""),
+    showgrid=False
+)
+
 
 def create_venue_bookings_chart(df):
     """Create top 10 venue performance by bookings"""
