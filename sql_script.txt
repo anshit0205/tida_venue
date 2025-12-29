@@ -1,0 +1,199 @@
+-- OPTIMIZED VERSION: Prevents connection timeout by simplifying joins
+-- This version reduces complexity and processes data more efficiently
+-- Run this step-by-step if needed
+
+USE tida;
+
+-- Step 1: Drop table if exists
+DROP TABLE IF EXISTS tida_order_details;
+
+-- Step 2: Create the table structure
+CREATE TABLE tida_order_details (
+    order_id BIGINT NOT NULL,
+    date_paid DATETIME DEFAULT NULL,
+    product_id BIGINT DEFAULT NULL,
+    variation_id BIGINT DEFAULT 0,
+    product_net_revenue DECIMAL(26,8) DEFAULT NULL,
+    coupon_amount DECIMAL(26,8) DEFAULT NULL,
+    order_status VARCHAR(50) DEFAULT NULL,
+    payment_method VARCHAR(100) DEFAULT NULL,
+    payment_method_title VARCHAR(255) DEFAULT NULL,
+    date_created_gmt DATETIME DEFAULT NULL,
+    post_name VARCHAR(200) DEFAULT NULL,
+    post_title TEXT,
+    post_excerpt TEXT,
+    post_status VARCHAR(20) DEFAULT NULL,
+    post_type VARCHAR(20) DEFAULT NULL,
+    slot_start DATETIME DEFAULT NULL,
+    slot_end DATETIME DEFAULT NULL,
+    billing_address_index TEXT,
+    tida_sports_type TEXT,
+    person_name TEXT,
+    INDEX idx_order_id (order_id),
+    INDEX idx_product_id (product_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Step 3: Insert base order and product data (simplified - no booking slots or meta yet)
+INSERT INTO tida_order_details
+(
+    order_id,
+    date_paid,
+    product_id,
+    variation_id,
+    product_net_revenue,
+    coupon_amount,
+    order_status,
+    payment_method,
+    payment_method_title,
+    date_created_gmt,
+    post_name,
+    post_title,
+    post_excerpt,
+    post_status,
+    post_type
+)
+SELECT
+    os.order_id,
+    os.date_paid,
+    opl.product_id,
+    COALESCE(opl.variation_id, 0) AS variation_id,
+    opl.product_net_revenue,
+    opl.coupon_amount,
+    wo.status AS order_status,
+    wo.payment_method,
+    wo.payment_method_title,
+    wo.date_created_gmt,
+    p.post_name,
+    p.post_title,
+    p.post_excerpt,
+    p.post_status,
+    p.post_type
+
+FROM wp_wc_order_stats os
+
+INNER JOIN wp_wc_order_product_lookup opl
+    ON os.order_id = opl.order_id
+
+LEFT JOIN wp_wc_orders wo
+    ON os.order_id = wo.id
+
+LEFT JOIN wp_posts p
+    ON (
+        (COALESCE(opl.variation_id, 0) = 0 AND opl.product_id = p.ID)
+        OR
+        (COALESCE(opl.variation_id, 0) != 0
+         AND opl.variation_id = p.ID
+         AND opl.product_id = p.post_parent)
+    );
+
+-- Check progress
+SELECT CONCAT('Step 3 Complete: ', COUNT(*), ' base records inserted') AS status
+FROM tida_order_details;
+
+-- Step 4: Update with booking slot data
+UPDATE tida_order_details tod
+INNER JOIN (
+    SELECT
+        oi.order_id,
+        opl.product_id,
+        COALESCE(opl.variation_id, 0) AS variation_id,
+        CASE
+            WHEN ms.meta_value IS NOT NULL
+             AND ms.meta_value != ''
+             AND ms.meta_value REGEXP '^[0-9]{14}$'
+            THEN STR_TO_DATE(ms.meta_value, '%Y%m%d%H%i%s')
+            ELSE NULL
+        END AS slot_start,
+        CASE
+            WHEN me.meta_value IS NOT NULL
+             AND me.meta_value != ''
+             AND me.meta_value REGEXP '^[0-9]{14}$'
+            THEN STR_TO_DATE(me.meta_value, '%Y%m%d%H%i%s')
+            ELSE NULL
+        END AS slot_end
+    FROM wp_woocommerce_order_items oi
+    INNER JOIN wp_wc_order_product_lookup opl
+        ON oi.order_id = opl.order_id
+    INNER JOIN wp_postmeta bom
+        ON bom.meta_key = '_booking_order_item_id'
+        AND CAST(bom.meta_value AS UNSIGNED) = oi.order_item_id
+    INNER JOIN wp_posts b
+        ON b.ID = bom.post_id
+        AND b.post_type = 'wc_booking'
+    LEFT JOIN wp_postmeta ms
+        ON ms.post_id = b.ID
+        AND ms.meta_key = '_booking_start'
+    LEFT JOIN wp_postmeta me
+        ON me.post_id = b.ID
+        AND me.meta_key = '_booking_end'
+) booking_data
+ON tod.order_id = booking_data.order_id
+   AND tod.product_id = booking_data.product_id
+   AND tod.variation_id = booking_data.variation_id
+SET
+    tod.slot_start = booking_data.slot_start,
+    tod.slot_end = booking_data.slot_end;
+
+-- Check progress
+SELECT CONCAT('Step 4 Complete: ', COUNT(*), ' records updated with booking slots') AS status
+FROM tida_order_details
+WHERE slot_start IS NOT NULL;
+
+-- Step 5: Update with billing_address_index
+UPDATE tida_order_details tod
+INNER JOIN wp_wc_orders_meta om
+    ON tod.order_id = om.order_id
+    AND om.meta_key = '_billing_address_index'
+SET tod.billing_address_index = om.meta_value;
+
+-- Check progress
+SELECT CONCAT('Step 5 Complete: ', COUNT(*), ' records updated with billing address') AS status
+FROM tida_order_details
+WHERE billing_address_index IS NOT NULL;
+
+-- Step 6: Update with tida_sports_type
+UPDATE tida_order_details tod
+INNER JOIN wp_wc_orders_meta om
+    ON tod.order_id = om.order_id
+    AND om.meta_key = 'tida_sports_type'
+SET tod.tida_sports_type = om.meta_value;
+
+-- Check progress
+SELECT CONCAT('Step 6 Complete: ', COUNT(*), ' records updated with sports type') AS status
+FROM tida_order_details
+WHERE tida_sports_type IS NOT NULL;
+
+-- Step 7: Update with person_name
+UPDATE tida_order_details tod
+INNER JOIN wp_wc_orders_meta om
+    ON tod.order_id = om.order_id
+    AND om.meta_key = '_billing_person_for'
+SET tod.person_name = om.meta_value;
+
+-- Check progress
+SELECT CONCAT('Step 7 Complete: ', COUNT(*), ' records updated with person name') AS status
+FROM tida_order_details
+WHERE person_name IS NOT NULL;
+
+-- Step 8: Add remaining indexes
+CREATE INDEX idx_date_paid ON tida_order_details(date_paid);
+CREATE INDEX idx_variation_id ON tida_order_details(variation_id);
+CREATE INDEX idx_order_status ON tida_order_details(order_status);
+CREATE INDEX idx_payment_method ON tida_order_details(payment_method);
+
+-- Final summary
+SELECT 'TABLE CREATION COMPLETE!' AS status;
+
+SELECT
+    COUNT(*) AS total_records,
+    COUNT(DISTINCT order_id) AS unique_orders,
+    COUNT(DISTINCT product_id) AS unique_products,
+    MIN(date_paid) AS earliest_order,
+    MAX(date_paid) AS latest_order,
+    SUM(CASE WHEN slot_start IS NOT NULL THEN 1 ELSE 0 END) AS orders_with_bookings,
+    SUM(CASE WHEN billing_address_index IS NOT NULL THEN 1 ELSE 0 END) AS orders_with_billing,
+    SUM(CASE WHEN person_name IS NOT NULL THEN 1 ELSE 0 END) AS orders_with_person_name
+FROM tida_order_details;
+
+-- Show sample
+SELECT * FROM tida_order_details ORDER BY order_id DESC LIMIT 5;
