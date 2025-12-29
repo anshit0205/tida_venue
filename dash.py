@@ -35,52 +35,58 @@ st.markdown("""
     }
     
     .main {
-        background: linear-gradient(to bottom, #1a1a2e 0%, #16213e 100%);
+        background: linear-gradient(to bottom, #0a0e27 0%, #1a1a2e 100%);
         background-attachment: fixed;
     }
     
     /* Sidebar styling */
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0f3460 0%, #16213e 100%);
-        border-right: 2px solid rgba(0, 255, 194, 0.2);
+        border-right: 2px solid rgba(0, 255, 194, 0.3);
     }
     
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1,
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
-    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
+    [data-testid="stSidebar"] * {
+        color: #ffffff !important;
+    }
+    
+    [data-testid="stSidebar"] h1,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3 {
         color: #00ffc2 !important;
     }
     
-    /* Metric cards */
+    /* Metric cards - FIXED VISIBILITY */
     [data-testid="stMetric"] {
-        background: linear-gradient(135deg, rgba(0, 255, 194, 0.1) 0%, rgba(58, 123, 213, 0.1) 100%);
+        background: linear-gradient(135deg, rgba(0, 255, 194, 0.15) 0%, rgba(58, 123, 213, 0.15) 100%);
         backdrop-filter: blur(10px);
-        border: 2px solid rgba(0, 255, 194, 0.3);
+        border: 2px solid rgba(0, 255, 194, 0.4);
         border-radius: 12px;
         padding: 20px;
-        box-shadow: 0 8px 32px rgba(0, 255, 194, 0.15);
+        box-shadow: 0 8px 32px rgba(0, 255, 194, 0.2);
     }
     
     [data-testid="stMetric"] label {
-        color: #a0d8ef !important;
-        font-size: 0.85rem !important;
-        font-weight: 600 !important;
+        color: #ffffff !important;
+        font-size: 0.9rem !important;
+        font-weight: 700 !important;
         letter-spacing: 1px;
         text-transform: uppercase;
     }
     
     [data-testid="stMetric"] [data-testid="stMetricValue"] {
         color: #00ffc2 !important;
-        font-size: 2.2rem !important;
+        font-size: 2.5rem !important;
         font-weight: 800 !important;
         font-family: 'Poppins', sans-serif !important;
+        text-shadow: 0 0 10px rgba(0, 255, 194, 0.5);
     }
     
     [data-testid="stMetric"] [data-testid="stMetricDelta"] {
         color: #ffd700 !important;
+        font-weight: 600 !important;
     }
     
-    /* Headers */
+    /* Headers - BRIGHT AND VISIBLE */
     h1, h2, h3 {
         color: #ffffff !important;
         font-weight: 700 !important;
@@ -89,10 +95,9 @@ st.markdown("""
     
     h1 {
         font-size: 2.8rem !important;
-        background: linear-gradient(135deg, #00ffc2 0%, #3a7bd5 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin-bottom: 0.5rem !important;
+        color: #00ffc2 !important;
+        text-shadow: 0 0 20px rgba(0, 255, 194, 0.6);
+        margin-bottom: 1rem !important;
     }
     
     h2 {
@@ -102,34 +107,30 @@ st.markdown("""
     }
     
     h3 {
-        color: #a0d8ef !important;
+        color: #ffffff !important;
         font-size: 1.3rem !important;
     }
     
-    /* Text colors */
-    p, span, div {
-        color: #e0e0e0 !important;
+    /* Text colors - MUCH MORE VISIBLE */
+    p, span, div, label {
+        color: #ffffff !important;
     }
     
     .stMarkdown {
-        color: #e0e0e0 !important;
+        color: #ffffff !important;
     }
     
     /* Select boxes and inputs */
-    .stSelectbox, .stMultiSelect, .stDateInput {
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
-    }
-    
-    .stSelectbox label, .stMultiSelect label, .stDateInput label {
-        color: #00ffc2 !important;
+    .stSelectbox label, .stMultiSelect label, .stDateInput label, .stCheckbox label {
+        color: #ffffff !important;
         font-weight: 600 !important;
+        font-size: 0.95rem !important;
     }
     
     /* Buttons */
     .stButton > button {
         background: linear-gradient(135deg, #00ffc2 0%, #3a7bd5 100%);
-        color: #1a1a2e;
+        color: #0a0e27 !important;
         border: none;
         border-radius: 8px;
         padding: 0.6rem 1.5rem;
@@ -149,53 +150,72 @@ st.markdown("""
     [data-testid="stDataFrame"] {
         background: rgba(255, 255, 255, 0.05);
         border-radius: 12px;
-        border: 1px solid rgba(0, 255, 194, 0.2);
+        border: 1px solid rgba(0, 255, 194, 0.3);
     }
     
-    /* Expander */
-    [data-testid="stExpander"] {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(0, 255, 194, 0.2);
-        border-radius: 12px;
-    }
-    
-    /* Info boxes */
-    .stAlert {
-        background: rgba(0, 255, 194, 0.1);
-        border-left: 4px solid #00ffc2;
+    /* Info/Success boxes - VISIBLE */
+    .stAlert, .stInfo {
+        background: rgba(0, 255, 194, 0.15) !important;
+        border-left: 4px solid #00ffc2 !important;
         color: #ffffff !important;
     }
     
-    /* Success message */
     .stSuccess {
-        background: rgba(0, 255, 194, 0.15);
-        border: 1px solid #00ffc2;
-        color: #00ffc2 !important;
+        background: rgba(0, 255, 194, 0.2) !important;
+        border: 1px solid #00ffc2 !important;
+        color: #ffffff !important;
+    }
+    
+    .stWarning {
+        background: rgba(255, 215, 0, 0.15) !important;
+        border-left: 4px solid #ffd700 !important;
+        color: #ffffff !important;
     }
     
     /* Date range display */
     .date-range-box {
-        background: linear-gradient(135deg, rgba(58, 123, 213, 0.2) 0%, rgba(0, 255, 194, 0.2) 100%);
+        background: linear-gradient(135deg, rgba(0, 255, 194, 0.2) 0%, rgba(58, 123, 213, 0.2) 100%);
         border: 2px solid #00ffc2;
         border-radius: 12px;
-        padding: 15px;
+        padding: 20px;
         text-align: center;
         margin: 20px 0;
     }
     
     .date-range-text {
         color: #ffffff !important;
-        font-size: 1.1rem !important;
-        font-weight: 600 !important;
+        font-size: 1.2rem !important;
+        font-weight: 700 !important;
     }
     
-    /* Custom highlight */
+    /* Custom highlight box */
     .highlight-box {
         background: linear-gradient(135deg, rgba(0, 255, 194, 0.15) 0%, rgba(58, 123, 213, 0.15) 100%);
         border-left: 4px solid #00ffc2;
         padding: 1.5rem;
         border-radius: 12px;
         margin: 1rem 0;
+    }
+    
+    .highlight-box h4 {
+        color: #00ffc2 !important;
+        margin-top: 0 !important;
+    }
+    
+    .highlight-box p {
+        color: #ffffff !important;
+        margin: 0.5rem 0 !important;
+    }
+    
+    /* Make all text more visible */
+    .element-container {
+        color: #ffffff !important;
+    }
+    
+    /* Caption text */
+    .stCaption {
+        color: #a0d8ef !important;
+        font-size: 0.9rem !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -425,13 +445,10 @@ def create_revenue_trend(df):
     )
     
     fig.update_layout(
-        title={
-            'text': "📈 Revenue & Booking Trends Over Time",
-            'font': {'size': 20, 'color': '#ffffff', 'family': 'Poppins'}
-        },
+        title="📈 Revenue & Booking Trends Over Time",
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(26, 26, 46, 0.5)',
-        font=dict(color='#ffffff', family='Inter'),
+        font=dict(color='#ffffff', family='Inter', size=12),
         hovermode='x unified',
         legend=dict(
             orientation="h",
@@ -440,7 +457,7 @@ def create_revenue_trend(df):
             xanchor="right",
             x=1,
             bgcolor='rgba(0,0,0,0.3)',
-            font=dict(color='#ffffff')
+            font=dict(color='#ffffff', size=12)
         ),
         height=450,
         xaxis=dict(
@@ -448,20 +465,26 @@ def create_revenue_trend(df):
             gridwidth=1,
             gridcolor='rgba(255,255,255,0.1)',
             title='Date',
-            titlefont=dict(color='#00ffc2')
+            titlefont=dict(color='#00ffc2', size=14)
         ),
-        yaxis=dict(
-            title='Revenue (₹)',
-            titlefont=dict(color='#00ffc2'),
-            showgrid=True,
-            gridwidth=1,
-            gridcolor='rgba(255,255,255,0.1)'
-        ),
-        yaxis2=dict(
-            title='Bookings',
-            titlefont=dict(color='#ffd700'),
-            showgrid=False
-        )
+        margin=dict(l=80, r=80, t=80, b=80)
+    )
+    
+    # Update y-axes separately
+    fig.update_yaxes(
+        title_text='Revenue (₹)',
+        titlefont=dict(color='#00ffc2', size=14),
+        showgrid=True,
+        gridwidth=1,
+        gridcolor='rgba(255,255,255,0.1)',
+        secondary_y=False
+    )
+    
+    fig.update_yaxes(
+        title_text='Bookings',
+        titlefont=dict(color='#ffd700', size=14),
+        showgrid=False,
+        secondary_y=True
     )
     
     return fig
@@ -708,35 +731,10 @@ def create_monthly_comparison(df):
     ))
     
     fig.update_layout(
-        title={
-            'text': "📅 Monthly Revenue & Booking Trends",
-            'font': {'size': 20, 'color': '#ffffff', 'family': 'Poppins'}
-        },
+        title="📅 Monthly Revenue & Booking Trends",
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(26, 26, 46, 0.5)',
-        font=dict(color='#ffffff', family='Inter'),
-        yaxis=dict(
-            title='Revenue (₹)',
-            titlefont=dict(color='#00ffc2'),
-            side='left',
-            showgrid=True,
-            gridwidth=1,
-            gridcolor='rgba(255,255,255,0.1)'
-        ),
-        yaxis2=dict(
-            title='Bookings',
-            titlefont=dict(color='#ffd700'),
-            side='right',
-            overlaying='y',
-            showgrid=False
-        ),
-        xaxis=dict(
-            title='Month',
-            titlefont=dict(color='#00ffc2'),
-            showgrid=True,
-            gridwidth=1,
-            gridcolor='rgba(255,255,255,0.1)'
-        ),
+        font=dict(color='#ffffff', family='Inter', size=12),
         hovermode='x unified',
         height=450,
         legend=dict(
@@ -746,7 +744,37 @@ def create_monthly_comparison(df):
             xanchor="right",
             x=1,
             bgcolor='rgba(0,0,0,0.3)',
-            font=dict(color='#ffffff')
+            font=dict(color='#ffffff', size=12)
+        ),
+        xaxis=dict(
+            title='Month',
+            titlefont=dict(color='#00ffc2', size=14),
+            showgrid=True,
+            gridwidth=1,
+            gridcolor='rgba(255,255,255,0.1)'
+        ),
+        margin=dict(l=80, r=80, t=80, b=80)
+    )
+    
+    # Update y-axes separately
+    fig.update_yaxes(
+        title_text='Revenue (₹)',
+        titlefont=dict(color='#00ffc2', size=14),
+        side='left',
+        showgrid=True,
+        gridwidth=1,
+        gridcolor='rgba(255,255,255,0.1)',
+        secondary_y=False
+    )
+    
+    # This was causing the error - fixed now
+    fig.update_layout(
+        yaxis2=dict(
+            title='Bookings',
+            titlefont=dict(color='#ffd700', size=14),
+            side='right',
+            overlaying='y',
+            showgrid=False
         )
     )
     
