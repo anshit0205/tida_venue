@@ -34,10 +34,15 @@ st.markdown("""
         font-family: 'Inter', sans-serif;
     }
     
-    .main {
+    [data-testid="stAppViewContainer"] {
+            
         background: linear-gradient(to bottom, #1a1a2e 0%, #16213e 100%);
-        background-attachment: fixed;
     }
+
+    [data-testid="stMain"] {
+        background: transparent;
+    }
+
     
     /* Sidebar styling */
     [data-testid="stSidebar"] {
